@@ -240,9 +240,7 @@ class CiphertextMessage(Message):
         Returns: a tuple of the best shift value used to decrypt the message
         and the decrypted message text using that shift value
         '''
-        wordlist = load_words('words.txt')
 
-        
         lis = [0,0,-1]
         count = 0
         for s in range(26):

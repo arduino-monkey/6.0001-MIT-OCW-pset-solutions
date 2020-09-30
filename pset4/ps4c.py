@@ -4,8 +4,7 @@
 # Time Spent: x:xx
 
 import string
-from ps4a import get_permutations
-
+from ps4a import *
 ### HELPER CODE ###
 def load_words(file_name):
     '''
@@ -70,7 +69,11 @@ class SubMessage(object):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
+        self.message_text = text
+        self.valid_words = []
+        for i in self.message_text.split(' '):
+            if is_word(wordlist,i):
+                self.valid_words.append(i)
     
     def get_message_text(self):
         '''
@@ -78,7 +81,7 @@ class SubMessage(object):
         
         Returns: self.message_text
         '''
-        pass #delete this line and replace with your code here
+        return self.message_text
 
     def get_valid_words(self):
         '''
@@ -87,7 +90,7 @@ class SubMessage(object):
         
         Returns: a COPY of self.valid_words
         '''
-        pass #delete this line and replace with your code here
+        return self.valid_words[:]
                 
     def build_transpose_dict(self, vowels_permutation):
         '''
@@ -108,8 +111,39 @@ class SubMessage(object):
         Returns: a dictionary mapping a letter (string) to 
                  another letter (string). 
         '''
-        
-        pass #delete this line and replace with your code here
+        d = {}
+        for letter in string.ascii_lowercase:
+            if letter in CONSONANTS_LOWER:
+                d[letter] = letter
+            else:
+                if letter == 'a':
+                    d[letter] = vowels_permutation[0]
+                elif letter == 'e':
+                    d[letter] = vowels_permutation[1]
+                elif letter == 'i':
+                    d[letter] = vowels_permutation[2]
+                elif letter == 'o':
+                    d[letter] = vowels_permutation[3]
+                elif letter == 'u':
+                    d[letter] = vowels_permutation[4]
+                    
+        for letter in string.ascii_uppercase:
+            if letter in CONSONANTS_UPPER:
+                d[letter] = letter
+            else:
+                if letter == 'A':
+                    d[letter] = vowels_permutation[0].upper()
+                elif letter == 'E':
+                    d[letter] = vowels_permutation[1].upper()
+                elif letter == 'I':
+                    d[letter] = vowels_permutation[2].upper()
+                elif letter == 'O':
+                    d[letter] = vowels_permutation[3].upper()
+                elif letter == 'U':
+                    d[letter] = vowels_permutation[4].upper()
+        return d
+                
+            
     
     def apply_transpose(self, transpose_dict):
         '''
@@ -119,7 +153,15 @@ class SubMessage(object):
         on the dictionary
         '''
         
-        pass #delete this line and replace with your code here
+        lis = list(self.message_text)
+        result = []
+        for i in lis:
+            if i in string.ascii_lowercase or i in string.ascii_uppercase:
+                letter = transpose_dict[i]
+                result.append(letter)
+            else:
+                result.append(i)
+        return ''.join(result)
         
 class EncryptedSubMessage(SubMessage):
     def __init__(self, text):
@@ -132,7 +174,7 @@ class EncryptedSubMessage(SubMessage):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
+        super().__init__(text)
 
     def decrypt_message(self):
         '''
@@ -152,12 +194,29 @@ class EncryptedSubMessage(SubMessage):
         
         Hint: use your function from Part 4A
         '''
-        pass #delete this line and replace with your code here
+        count = 0
+        lis = [0,0]
+        for permutation in get_permutations('aeiou'):
+            transpose_dict = SubMessage.build_transpose_dict(self, permutation)
+            string = SubMessage.apply_transpose(self, transpose_dict)
+            for word in string.split(' '):
+                if is_word(wordlist,word):
+                    count += 1
+            
+            
+            if count > lis[0]:
+                lis[0] = count
+                lis[1] = string
+            
+            count = 0
+        return lis[1]
+            
     
 
 if __name__ == '__main__':
 
     # Example test case
+    wordlist = load_words('words.txt')
     message = SubMessage("Hello World!")
     permutation = "eaiuo"
     enc_dict = message.build_transpose_dict(permutation)
@@ -166,5 +225,3 @@ if __name__ == '__main__':
     print("Actual encryption:", message.apply_transpose(enc_dict))
     enc_message = EncryptedSubMessage(message.apply_transpose(enc_dict))
     print("Decrypted message:", enc_message.decrypt_message())
-     
-    #TODO: WRITE YOUR TEST CASES HERE
